@@ -1,0 +1,14 @@
+fastapi[standard]
+sqlalchemy==2.0.35
+psycopg2-binary==2.9.10
+sqlalchemy-file==0.6.0
+pydantic-settings==2.5.2
+alembic==1.13.3
+fastapi-storages==0.3.0
+
+langchain==0.3.7
+langchain_pinecone==0.2.0
+nvidia-container-toolkit==0.3.7
+pinecone==5.3.1
+sentence-transformers==3.3.0
+pypdf==5.1.0
