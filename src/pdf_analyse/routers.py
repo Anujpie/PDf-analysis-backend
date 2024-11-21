@@ -29,13 +29,16 @@ llm = ChatOllama(model="llama3", temperature=0)
 
 @router.get('/get', response_class=CustomJSONResponse)
 async def get_file(response: Response, db: Session = Depends(get_db)):
+    """ Get all files """
+    
     documents = db.query(Document).all()
     return documents
 
 
 @router.post('/upload', response_class=CustomJSONResponse)
 async def file_upload(files: List[UploadFile], response: Response, db: Session = Depends(get_db)):
-
+    """ Upload multiple files """
+    
     for file in files:
         print('file: ', file)
         try:
@@ -58,8 +61,9 @@ async def file_upload(files: List[UploadFile], response: Response, db: Session =
 
 @router.post('/train', response_class=CustomJSONResponse)
 async def file_train(response: Response, db: Session = Depends(get_db)):
-    create_index(index_name)
+    """" Train uploaded PDFs and create embedding in pinecone DB. Lastly delete all files from system and database records. """
 
+    create_index(index_name)
     documents = db.query(Document).all()
     
     for document in documents:
@@ -96,6 +100,9 @@ async def file_train(response: Response, db: Session = Depends(get_db)):
 
 @router.get('/chat', response_class=CustomJSONResponse)
 async def get_response(user_query: str, response: Response, db: Session = Depends(get_db)):
+    """ Provide any context and model will give you response based on PDF. 
+    If context is not available in PDF, it gives you general response based on trained data on the model. """
+
     context = retrieve_from_pinecone(index_name, user_query)[:5]
 
     template = """
