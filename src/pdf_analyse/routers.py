@@ -1,4 +1,5 @@
 import os
+import shutil
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, Response, UploadFile
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ from src.models import Document
 from src.base.custom_renderer import CustomJSONResponse
 
 from src.database import get_db
-from src.pdf_analyse.services import create_index, retrieve_from_pinecone
+from src.pdf_analyse.services import create_index, delete_file_from_system, retrieve_from_pinecone
 
 router = APIRouter(
     prefix="/file",
@@ -38,6 +39,10 @@ async def file_upload(files: List[UploadFile], response: Response, db: Session =
     for file in files:
         print('file: ', file)
         try:
+            file_path = os.path.join(MEDIA_FOLDER, file.filename)
+            with open(file_path, "wb") as f:
+                shutil.copyfileobj(file.file, f)
+            
             # file_content = await file.read()
             document = Document(filename=file.filename)
 
@@ -51,7 +56,7 @@ async def file_upload(files: List[UploadFile], response: Response, db: Session =
     return response
 
 
-@router.get('/train', response_class=CustomJSONResponse)
+@router.post('/train', response_class=CustomJSONResponse)
 async def file_train(response: Response, db: Session = Depends(get_db)):
     create_index(index_name)
 
@@ -59,6 +64,9 @@ async def file_train(response: Response, db: Session = Depends(get_db)):
     
     for document in documents:
         file_path = os.path.join(MEDIA_FOLDER, document.filename)
+
+        if not os.path.exists(file_path):
+            continue
 
         loader = PyPDFLoader(file_path)
         data = loader.load()
@@ -73,15 +81,20 @@ async def file_train(response: Response, db: Session = Depends(get_db)):
         embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
 
         # Convert fragments into embeddings and store in Pinecone
-        pinecone = PineconeVectorStore.from_documents(
+        PineconeVectorStore.from_documents(
             fragments, embeddings, index_name=index_name
         )
+
+        delete_file_from_system(file_path)
+        db.delete(document)
+    
+    db.commit()
 
     response = {"message": "Files are trained"}
     return response
 
 
-@router.get('/response', response_class=CustomJSONResponse)
+@router.get('/chat', response_class=CustomJSONResponse)
 async def get_response(user_query: str, response: Response, db: Session = Depends(get_db)):
     context = retrieve_from_pinecone(index_name, user_query)[:5]
 
@@ -98,3 +111,5 @@ async def get_response(user_query: str, response: Response, db: Session = Depend
         "context": context,
         "user_question": user_query
     })
+
+

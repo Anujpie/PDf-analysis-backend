@@ -1,3 +1,4 @@
+import os
 from langchain_pinecone import PineconeVectorStore
 from pinecone import Pinecone
 from pinecone import ServerlessSpec
@@ -35,3 +36,9 @@ def retrieve_from_pinecone(index_name, user_query="What information do you have 
     
     return context
 
+def delete_file_from_system(full_file_path: str):
+    if os.path.exists(full_file_path):
+        os.remove(full_file_path)
+        print(f"Deleted file: {full_file_path}")
+    else:
+        print(f"File not found: {full_file_path}")
