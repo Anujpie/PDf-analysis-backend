@@ -6,7 +6,6 @@ from src.config import settings
 from langchain_community.embeddings import SentenceTransformerEmbeddings
 
 pc = Pinecone(api_key=settings.PINECONE_API_KEY)
-embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
 
 def create_index(name):
 

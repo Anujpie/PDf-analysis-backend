@@ -61,7 +61,7 @@ async def file_upload(files: List[UploadFile], response: Response, db: Session =
 
 @router.post('/train', response_class=CustomJSONResponse)
 async def file_train(response: Response, db: Session = Depends(get_db)):
-    """" Train uploaded PDFs and create embedding in pinecone DB. Lastly delete all files from system and database records. """
+    """ Train uploaded PDFs and create embedding in pinecone DB. Lastly delete all files from system and database records. """
 
     create_index(index_name)
     documents = db.query(Document).all()
