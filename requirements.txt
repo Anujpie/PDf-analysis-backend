@@ -5,6 +5,7 @@ sqlalchemy-file==0.6.0
 pydantic-settings==2.5.2
 alembic==1.13.3
 fastapi-storages==0.3.0
+langchain_community==0.3.7
 
 langchain==0.3.7
 langchain-pinecone==0.2.0
