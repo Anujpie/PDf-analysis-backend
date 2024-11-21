@@ -20,11 +20,6 @@ env/
 !.vscode/launch.json
 !.vscode/extensions.json
 
-
-### Project template
-media/
-
-
 # Vagrant boxes
 *.box
 .vagrant/
