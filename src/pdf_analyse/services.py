@@ -25,11 +25,11 @@ def create_index(name):
     return index.describe_index_stats()
 
 
-def retrieve_from_pinecone(embeddings, index_name, user_query="What information do you have on Instance Sync Permissions"):
+def retrieve_from_pinecone(index_name, user_query="What information do you have on Instance Sync Permissions"):
     index = pc.Index(index_name)
-    
     print("Index stats:", index.describe_index_stats())
-    
+
+    embeddings = SentenceTransformerEmbeddings(model_name='all-MiniLM-L6-v2')
     pinecone = PineconeVectorStore.from_existing_index(index_name=index_name, embedding=embeddings)
     context = pinecone.similarity_search(user_query)[:5]
     

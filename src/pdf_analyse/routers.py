@@ -83,7 +83,7 @@ async def file_train(response: Response, db: Session = Depends(get_db)):
 
 @router.get('/response', response_class=CustomJSONResponse)
 async def get_response(user_query: str, response: Response, db: Session = Depends(get_db)):
-    context = retrieve_from_pinecone(embeddings, index_name, user_query)[:5]
+    context = retrieve_from_pinecone(index_name, user_query)[:5]
 
     template = """
         Answer the question below according to your knowledge in a way that will be helpful to students asking the question.
